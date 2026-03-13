@@ -19,6 +19,27 @@ async function createBooking(req,res){
 
     } catch (error) {
         ErrorResponse.error = error;
+        return res
+                  .status(StatusCodes.BAD_REQUEST)
+                  .json(ErrorResponse)
+    }
+}
+
+async function makePayment(req,res){
+    try {
+        
+        const booking = await BookingService.makePayment({
+            bookingId:req.body.bookingId,
+            userID:req.body.userID,
+            totalCost:req.body.totalCost
+        })
+        SuccessResponse.data = booking;
+        return res
+                  .status(StatusCodes.CREATED)
+                  .json(SuccessResponse)
+
+    } catch (error) {
+        ErrorResponse.error = error;
         console.log(error);
         return res
                   .status(StatusCodes.BAD_REQUEST)
@@ -28,5 +49,6 @@ async function createBooking(req,res){
 
 
 module.exports={
-    createBooking
+    createBooking,
+    makePayment
 }
