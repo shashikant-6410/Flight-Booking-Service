@@ -9,6 +9,7 @@
   "author": "Shashikant",
   "license": "ISC",
   "dependencies": {
+    "amqplib": "^1.0.3",
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
