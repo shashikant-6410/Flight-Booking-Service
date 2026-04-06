@@ -1,11 +1,12 @@
 const axios = require('axios');
 const {BookingRepository}= require('../repositories');
 const db = require('../models');
-const {serverConfig}=require('../config');
+const {serverConfig,Queue}=require('../config');
 const AppError = require('../utils/errors/app-error');
 const { StatusCodes } = require('http-status-codes');
 const bookingRepo= new BookingRepository();
 const {Enums}=require('../utils/common');
+const { text } = require('express');
 const {BOOKED,CANCELLED}= Enums.Booking_status;
 
 async function createBooking(data) {
@@ -63,8 +64,18 @@ async function makePayment(data) {
         }
         //we assume here that payment is  successful
         await bookingRepo.update({status:BOOKED},data.bookingId,transaction);
-        await transaction.commit();
-        
+
+        //TRYING TO GET THE EMAIL OF USER USING THE USERID IN  api gateway   (PENDING TASK)
+        // const userdata = await axios.get(`${serverConfig.API_GATEWAY}/api/v1/user/${bookingDetails.userID}`);
+        // console.log(`this is user using api gateway-${userdata}`);
+
+        //sending the info to queue to be fetched my noti-service for sending mails
+          Queue.sendData({
+            recepientEmail:'yadavsky6410@gmail.com',
+            subject:'Flight Booked',
+            content:`Successfully booked flight with booking id - ${data.bookingId}`
+        })
+        await transaction.commit();    
     } catch (error) {
        await transaction.rollback();
         throw error;
